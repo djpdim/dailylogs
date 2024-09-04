@@ -161,8 +161,17 @@ const Checklist = () => {
                                 style={inputStyle("projectName")}
                             >
                                 <option value=''>Select Project</option>
-                                <option value='424 Carroll'>424 Carroll</option>
                                 <option value='203 Newport'>203 Newport</option>
+                                <option value='50-25 Barnett Ave'>50-25 Barnett Ave</option>
+                                <option value='424 Carroll Street'>424 Carroll Street</option>
+                                <option value='2435 Pacific Street'>2435 Pacific Street</option>
+                                <option value='2444 Tiebout Ave'>2444 Tiebout Ave</option>
+                                <option value='540 DeGraw'>540 DeGraw</option>
+                                <option value='778 Myrtle Avenue'>778 Myrtle Avenue</option>
+                                <option value='GMDC (Newport)'>GMDC (Newport)</option>
+                                <option value='Graces Place'>Graces Place</option>
+                                <option value='Metropolitan Building'>Metropolitan Building</option>
+                                <option value='Woodycrest'>Woodycrest</option>
                             </select>
                         </label>
                         <label>
