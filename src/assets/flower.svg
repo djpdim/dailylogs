@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- Blue Ring -->
+  <circle cx="80" cy="120" r="40" fill="#0074D9" />
+  <!-- Black Ring -->
+  <circle cx="120" cy="120" r="40" fill="#111111" />
+  <!-- Red Ring -->
+  <circle cx="160" cy="120" r="40" fill="#FF4136" />
+  <!-- Yellow Ring -->
+  <circle cx="100" cy="160" r="40" fill="#FFDC00" />
+  <!-- Green Ring -->
+  <circle cx="140" cy="160" r="40" fill="#2ECC40" />
+</svg>
