@@ -1,0 +1,65 @@
+{
+    "projects": [
+        "203 Newport",
+        "50-25 Barnett Ave",
+        "424 Carroll Street",
+        "2435 Pacific Street",
+        "2444 Tiebout Ave",
+        "540 DeGraw",
+        "778 Myrtle Avenue",
+        "GMDC (Newport)",
+        "Graces Place",
+        "Metropolitan Building",
+        "Woodycrest"
+    ],
+    "questions": [
+        {
+            "key": "elevatorsInspected75feet",
+            "label": "Confirm elevators are left at the uppermost floor below 75'."
+        },
+        {
+            "key": "roofFreeOfDebri",
+            "label": "Confirm roof is free of Debris:"
+        },
+        {
+            "key": "materialOnRoof",
+            "label": "Confirm material stored on roof is tied down properly:"
+        },
+        {
+            "key": "openingsProperlyProtected",
+            "label": "Confirm all openings are properly protected:"
+        },
+        {
+            "key": "windowsClosedLocked",
+            "label": "Confirm all windows are closed and locked:"
+        },
+        {
+            "key": "terraceDoorsShutLocked",
+            "label": "Confirm all terrace doors are shut and locked:"
+        },
+        {
+            "key": "drainsElevatorsEachFloor",
+            "label": "Confirm drains outside of the elevators on each floor are clean and free of debris:"
+        },
+        {
+            "key": "elevatorSumpPumps",
+            "label": "Confirm elevator sump pumps are powered and functional:"
+        },
+        {
+            "key": "sewerEjecterPump",
+            "label": "Confirm sewer ejecter pump is powered and functional:"
+        },
+        {
+            "key": "basinsAdjacent",
+            "label": "Confirm all catch basins adjacent to the site are clear of any debris:"
+        },
+        {
+            "key": "leakDetectionSystem",
+            "label": "Confirm leak detection system is powered and functioning:"
+        },
+        {
+            "key": "fireAlarmSystem",
+            "label": "Confirm Fire Alarm system is called back online with Central Station:"
+        }
+    ]
+}
