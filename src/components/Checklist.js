@@ -2,7 +2,7 @@
 
 import emailjs from "emailjs-com";
 import React, { useState } from "react";
-import checklistData from "../data/checklistData.json"; // Import JSON data
+import checklistData from "../data/checklistData.json";
 
 const Checklist = () => {
     const [formData, setFormData] = useState({

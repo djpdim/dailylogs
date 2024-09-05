@@ -1,0 +1,57 @@
+[
+    {
+        "id": "203Newport",
+        "name": "203 Newport",
+        "recipients": ["it@megagroup.nyc", "database@megagroup.nyc"]
+    },
+    {
+        "id": "50-25BarnettAve",
+        "name": "50-25 Barnett Ave",
+        "recipients": ["recipient3@megagroup.nyc"]
+    },
+    {
+        "id": "424CarrollStreet",
+        "name": "424 Carroll Street",
+        "recipients": ["recipient4@megagroup.nyc"]
+    },
+    {
+        "id": "2435PacificStreet",
+        "name": "2435 Pacific Street",
+        "recipients": ["recipient5@megagroup.nyc", "recipient6@megagroup.nyc"]
+    },
+    {
+        "id": "2444TieboutAve",
+        "name": "2444 Tiebout Ave",
+        "recipients": ["recipient7@megagroup.nyc"]
+    },
+    {
+        "id": "540DeGraw",
+        "name": "540 DeGraw",
+        "recipients": ["recipient8@megagroup.nyc"]
+    },
+    {
+        "id": "778MyrtleAvenue",
+        "name": "778 Myrtle Avenue",
+        "recipients": ["recipient9@megagroup.nyc", "recipient10@megagroup.nyc"]
+    },
+    {
+        "id": "GMDCNewport",
+        "name": "GMDC (Newport)",
+        "recipients": ["recipient11@megagroup.nyc"]
+    },
+    {
+        "id": "GracesPlace",
+        "name": "Graces Place",
+        "recipients": ["recipient12@megagroup.nyc"]
+    },
+    {
+        "id": "MetropolitanBuilding",
+        "name": "Metropolitan Building",
+        "recipients": ["recipient13@megagroup.nyc"]
+    },
+    {
+        "id": "Woodycrest",
+        "name": "Woodycrest",
+        "recipients": ["recipient14@megagroup.nyc"]
+    }
+]
