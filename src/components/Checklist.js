@@ -247,21 +247,24 @@ const Checklist = () => {
                                         />
                                     </label>
                                 </div>
-                                <textarea
-                                    placeholder='Enter notes here...'
-                                    name={`notes_${key}`}
-                                    value={formData[key].note}
-                                    onChange={e => handleNoteChange(e, key)}
-                                    style={{
-                                        width: "100%",
-                                        padding: "0.5rem",
-                                        marginTop: "0.5rem",
-                                        border: "1px solid #ccc",
-                                        borderRadius: "4px",
-                                        boxSizing: "border-box",
-                                        height: "54%",
-                                    }}
-                                />
+                                <label className='notes'>
+                                    Notes:
+                                    <textarea
+                                        placeholder='Enter notes here...'
+                                        name={`notes_${key}`}
+                                        value={formData[key].note}
+                                        onChange={e => handleNoteChange(e, key)}
+                                        style={{
+                                            width: "100%",
+                                            padding: "0.5rem",
+                                            marginTop: "0.5rem",
+                                            border: "1px solid #ccc",
+                                            borderRadius: "4px",
+                                            boxSizing: "border-box",
+                                            height: "54%",
+                                        }}
+                                    />
+                                </label>
                             </fieldset>
                         </div>
                     ))}

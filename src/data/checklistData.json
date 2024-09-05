@@ -15,7 +15,7 @@
     "questions": [
         {
             "key": "elevatorsInspected75feet",
-            "label": "Confirm elevators are left at the uppermost floor below 75'."
+            "label": "Confirm elevators are left at the uppermost floor below 75':"
         },
         {
             "key": "roofFreeOfDebri",

@@ -21,6 +21,12 @@
     margin-right: 0;
 }
 
+input {
+    cursor: pointer;
+}
+.notes {
+    margin-top: 0.3125rem;
+}
 input[type="text"] {
     width: 100%;
     padding: 0.5rem;
