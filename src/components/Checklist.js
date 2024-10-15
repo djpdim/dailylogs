@@ -288,6 +288,303 @@ export default Checklist;
 
 // import emailjs from "emailjs-com";
 // import React, { useState } from "react";
+// import checklistData from "../data/checklistData.json";
+// import projects from "../data/projects.json";
+
+// const Checklist = () => {
+//     const [formData, setFormData] = useState({
+//         projectName: "",
+//         firstName: "",
+//         lastName: "",
+//         date: new Date().toLocaleDateString(),
+//         elevatorsInspected75feet: { answer: "", note: "" },
+//         roofFreeOfDebri: { answer: "", note: "" },
+//         materialOnRoof: { answer: "", note: "" },
+//         openingsProperlyProtected: { answer: "", note: "" },
+//         windowsClosedLocked: { answer: "", note: "" },
+//         terraceDoorsShutLocked: { answer: "", note: "" },
+//         drainsElevatorsEachFloor: { answer: "", note: "" },
+//         elevatorSumpPumps: { answer: "", note: "" },
+//         sewerEjecterPump: { answer: "", note: "" },
+//         basinsAdjacent: { answer: "", note: "" },
+//         leakDetectionSystem: { answer: "", note: "" },
+//         fireAlarmSystem: { answer: "", note: "" },
+//     });
+
+//     const requiredAsterisk = <span className='required-asterisk'>*</span>;
+//     const [errorMessage, setErrorMessage] = useState("");
+//     const [successMessage, setSuccessMessage] = useState("");
+//     const [showForm, setShowForm] = useState(true);
+//     const [missingFields, setMissingFields] = useState([]);
+
+//     const handleCheckboxChange = (e, questionKey) => {
+//         const { value } = e.target;
+//         setFormData(prevData => ({
+//             ...prevData,
+//             [questionKey]: { ...prevData[questionKey], answer: value },
+//         }));
+//     };
+
+//     const handleNoteChange = (e, questionKey) => {
+//         const { value } = e.target;
+//         const formattedValue = value.replace(/(?:^|\. )\w/g, char => char.toUpperCase());
+//         setFormData(prevData => ({
+//             ...prevData,
+//             [questionKey]: { ...prevData[questionKey], note: formattedValue },
+//         }));
+//     };
+
+//     const handleInputChange = e => {
+//         const { name, value } = e.target;
+//         const formattedValue =
+//             name === "firstName" || name === "lastName" ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+
+//         setFormData(prevData => ({
+//             ...prevData,
+//             [name]: formattedValue,
+//         }));
+//     };
+
+//     const handleSubmit = e => {
+//         e.preventDefault();
+
+//         const fullName = `${formData.firstName} ${formData.lastName}`;
+//         const userEmail = `${formData.firstName
+//             .charAt(0)
+//             .toLowerCase()}${formData.lastName.toLowerCase()}@megagroup.nyc`;
+
+//         // Check if checklistData.questions exists and is an array
+//         if (!Array.isArray(checklistData.questions)) {
+//             console.error("Checklist questions are not available.");
+//             setErrorMessage("Checklist questions are not loaded. Please try again.");
+//             return;
+//         }
+
+//         const checklistDataString = checklistData.questions
+//             .map((question, index) => {
+//                 const value = formData[question.key];
+//                 return `${index + 1}. ${question.label}\nAnswer: ${value.answer || "N/A"}${
+//                     value.note ? `\nNote: ${value.note}` : ""
+//                 }`;
+//             })
+//             .join("\n\n");
+
+//         const requiredFields = ["projectName", "firstName", "lastName"];
+//         const missing = requiredFields.filter(field => !formData[field]);
+//         const missingAnswers = checklistData.questions
+//             .filter(question => !formData[question.key]?.answer)
+//             .map(question => question.label);
+
+//         if (missing.length > 0 || missingAnswers.length > 0) {
+//             setMissingFields([...missingAnswers]);
+//             setErrorMessage("Please fill out all required fields.");
+//             return;
+//         }
+
+//         // Ensure 'projects.projects' is an array
+//         const selectedProject = Array.isArray(projects.projects)
+//             ? projects.projects.find(project => project.name === formData.projectName)
+//             : null;
+
+//         if (!selectedProject) {
+//             console.error("Selected project not found or projects data is not available.");
+//             setErrorMessage("Selected project not found. Please try again.");
+//             return;
+//         }
+
+//         const recipients = selectedProject.recipients.join(", ");
+//         const emailContent = `
+//         Project Name: ${formData.projectName}
+//         Date: ${formData.date}
+//         Full Name: ${fullName}
+//         Email: ${userEmail}
+
+//         Building Inspection:
+//         ${checklistDataString}
+//     `;
+
+//         // Send email using EmailJS
+//         emailjs
+//             .send(
+//                 process.env.REACT_APP_EMAILJS_SERVICE_ID,
+//                 process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+//                 {
+//                     project_name: formData.projectName,
+//                     date: formData.date,
+//                     full_name: fullName,
+//                     useremail: userEmail,
+//                     checklist_data: checklistDataString,
+//                     message: emailContent,
+//                     to_email: recipients,
+//                 },
+//                 process.env.REACT_APP_EMAILJS_USER_ID
+//             )
+//             .then(
+//                 response => {
+//                     console.log("SUCCESS!", response.status, response.text);
+//                     setSuccessMessage(
+//                         `<div class="successmessage">Your checklist has been submitted successfully!</div>
+//                     <a href="/" class="success-link">Home Page</a>`
+//                     );
+//                     setShowForm(false);
+//                 },
+//                 error => {
+//                     console.log("FAILED...", error);
+//                     setErrorMessage(`<div class="errormessage">There was an error submitting the form. Please try again.</div>
+//                     <a href="/" class="success-link">Home Page</a>`);
+//                 }
+//             );
+//     };
+
+//     const inputStyle = fieldName => ({
+//         width: "100%",
+//         padding: "0.5rem",
+//         marginTop: "0.5rem",
+//         border: "1px solid #ccc",
+//         borderRadius: "4px",
+//         boxSizing: "border-box",
+//         height: "54%",
+//         backgroundColor: formData[fieldName] === "" ? "" : "#fff",
+//     });
+
+//     return (
+//         <div className='Checklist'>
+//             {showForm ? (
+//                 <form onSubmit={handleSubmit}>
+//                     <div className='form-row'>
+//                         <label>
+//                             Project Name: {requiredAsterisk}
+//                             <select
+//                                 name='projectName'
+//                                 value={formData.projectName}
+//                                 onChange={handleInputChange}
+//                                 required
+//                                 style={inputStyle("projectName")}
+//                             >
+//                                 <option value=''>Select Project</option>
+//                                 {projects.map((project, index) => (
+//                                     <option key={index} value={project.name}>
+//                                         {project.name}
+//                                     </option>
+//                                 ))}
+//                             </select>
+//                         </label>
+
+//                         <label>
+//                             Date: {requiredAsterisk}
+//                             <input type='text' name='date' value={formData.date} readOnly style={inputStyle("date")} />
+//                         </label>
+//                     </div>
+//                     <div className='form-row'>
+//                         <label>
+//                             First Name: {requiredAsterisk}
+//                             <input
+//                                 type='text'
+//                                 name='firstName'
+//                                 value={formData.firstName}
+//                                 onChange={handleInputChange}
+//                                 required
+//                                 style={inputStyle("firstName")}
+//                             />
+//                         </label>
+//                         <label>
+//                             Last Name: {requiredAsterisk}
+//                             <input
+//                                 type='text'
+//                                 name='lastName'
+//                                 value={formData.lastName}
+//                                 onChange={handleInputChange}
+//                                 required
+//                                 style={inputStyle("lastName")}
+//                             />
+//                         </label>
+//                     </div>
+//                     <h2 className='inspection'>Building Inspection:</h2>
+//                     {checklistData.questions.map(({ label, key }, index) => (
+//                         <div className='question-box' key={index}>
+//                             <fieldset>
+//                                 <legend>
+//                                     {index + 1}. {label} {requiredAsterisk}
+//                                 </legend>
+//                                 <div
+//                                     style={{
+//                                         display: "flex",
+//                                         justifyContent: "space-between",
+//                                         alignItems: "center",
+//                                         marginTop: "8px",
+//                                     }}
+//                                 >
+//                                     <label>
+//                                         OK
+//                                         <input
+//                                             type='radio'
+//                                             name={key}
+//                                             value='OK'
+//                                             checked={formData[key].answer === "OK"}
+//                                             onChange={e => handleCheckboxChange(e, key)}
+//                                         />
+//                                     </label>
+//                                     <label>
+//                                         NG
+//                                         <input
+//                                             type='radio'
+//                                             name={key}
+//                                             value='NG'
+//                                             checked={formData[key].answer === "NG"}
+//                                             onChange={e => handleCheckboxChange(e, key)}
+//                                         />
+//                                     </label>
+//                                     <label>
+//                                         N/A
+//                                         <input
+//                                             type='radio'
+//                                             name={key}
+//                                             value='N/A'
+//                                             checked={formData[key].answer === "N/A"}
+//                                             onChange={e => handleCheckboxChange(e, key)}
+//                                         />
+//                                     </label>
+//                                 </div>
+//                                 <label className='notes'>
+//                                     Notes:
+//                                     <textarea
+//                                         placeholder='Enter notes here...'
+//                                         name={`notes_${key}`}
+//                                         value={formData[key].note}
+//                                         onChange={e => handleNoteChange(e, key)}
+//                                         style={{
+//                                             width: "100%",
+//                                             padding: "0.5rem",
+//                                             marginTop: "0.5rem",
+//                                             border: "1px solid #ccc",
+//                                             borderRadius: "4px",
+//                                             boxSizing: "border-box",
+//                                             height: "54%",
+//                                         }}
+//                                     />
+//                                 </label>
+//                             </fieldset>
+//                         </div>
+//                     ))}
+//                     <button type='submit' className='submit-button'>
+//                         Submit Checklist
+//                     </button>
+//                 </form>
+//             ) : (
+//                 <div>
+//                     <div dangerouslySetInnerHTML={{ __html: successMessage }} />
+//                 </div>
+//             )}
+//             {errorMessage && <div className='errormessage'>{errorMessage}</div>}
+//         </div>
+//     );
+// };
+
+// export default Checklist;
+// /** @format */
+
+// import emailjs from "emailjs-com";
+// import React, { useState } from "react";
 // import checklistData from "../data/checklistData.json"; // Import JSON data
 
 // const Checklist = () => {
