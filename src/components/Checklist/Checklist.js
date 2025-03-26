@@ -24,6 +24,9 @@ const Checklist = () => {
         basinsAdjacent: { answer: "", note: "" },
         leakDetectionSystem: { answer: "", note: "" },
         fireAlarmSystem: { answer: "", note: "" },
+        elevatorsOnSite: { answer: "", note: "" },
+        numberOfOperators: "",
+        hoursPerOperator: "",
     });
 
     const [errorMessage, setErrorMessage] = useState("");

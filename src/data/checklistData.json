@@ -1,5 +1,8 @@
 {
     "projects": [
+        "1304 Nameoke Ave",
+        "1381 University",
+        "161 Emerson Place",
         "203 Newport",
         "2435 Pacific Street",
         "2444 Tiebout Ave",
@@ -7,12 +10,16 @@
         "424 Carroll Street",
         "4790 Broadway",
         "50-25 Barnett Ave",
+        "5025 Barnett",
         "540 DeGraw",
+        "545 Sackett",
         "778 Myrtle Avenue",
         "88 Throop Avenue",
+        "Concern Inwood",
         "GMDC (Newport)",
         "Graces Place",
         "Metropolitan Building",
+        "Three Arts Club",
         "Woodycrest"
     ],
     "questions": [
@@ -63,6 +70,10 @@
         {
             "key": "fireAlarmSystem",
             "label": "Confirm Fire Alarm system is called back online with Central Station:"
+        },
+        {
+            "key": "elevatorsOnSite",
+            "label": "Were the elevator operators on site:"
         }
     ]
 }

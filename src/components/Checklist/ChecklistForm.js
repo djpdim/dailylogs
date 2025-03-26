@@ -10,7 +10,12 @@ const ChecklistForm = ({ formData, onInputChange, onCheckboxChange, onNoteChange
         <form onSubmit={onSubmit}>
             <ChecklistHeader formData={formData} onInputChange={onInputChange} />
             <ChecklistContent formData={formData} onCheckboxChange={onCheckboxChange} />
-            <ChecklistQuestions formData={formData} onCheckboxChange={onCheckboxChange} onNoteChange={onNoteChange} />
+            <ChecklistQuestions
+                formData={formData}
+                onCheckboxChange={onCheckboxChange}
+                onNoteChange={onNoteChange}
+                onInputChange={onInputChange}
+            />
             {errorMessage && <p className='error-message'>{errorMessage}</p>}
             <button type='submit'>Submit</button>
         </form>

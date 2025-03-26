@@ -22,6 +22,10 @@ const Checklist = () => {
         basinsAdjacent: { answer: "", note: "" },
         leakDetectionSystem: { answer: "", note: "" },
         fireAlarmSystem: { answer: "", note: "" },
+        elevatorsOnSite: { answer: "", note: "" },
+        numberOfOperators: "",
+        hoursPerOperator: "",
+        totalOperatorHours: "",
     });
 
     const requiredAsterisk = <span className='required-asterisk'>*</span>;
@@ -40,10 +44,7 @@ const Checklist = () => {
 
     const handleNoteChange = (e, questionKey) => {
         const { value } = e.target;
-
-        // Capitalize the first letter and letters following a period and space
         const formattedValue = value.replace(/(?:^|\. )\w/g, char => char.toUpperCase());
-
         setFormData(prevData => ({
             ...prevData,
             [questionKey]: { ...prevData[questionKey], note: formattedValue },
@@ -55,40 +56,38 @@ const Checklist = () => {
         const formattedValue =
             name === "firstName" || name === "lastName" ? value.charAt(0).toUpperCase() + value.slice(1) : value;
 
-        setFormData(prevData => ({
-            ...prevData,
+        const updatedFormData = {
+            ...formData,
             [name]: formattedValue,
-        }));
+        };
+
+        if (name === "numberOfOperators" || name === "hoursPerOperator") {
+            const numOps = parseFloat(name === "numberOfOperators" ? value : formData.numberOfOperators);
+            const hrsOp = parseFloat(name === "hoursPerOperator" ? value : formData.hoursPerOperator);
+
+            if (!isNaN(numOps) && !isNaN(hrsOp)) {
+                updatedFormData.totalOperatorHours = (numOps * hrsOp).toLocaleString();
+            } else {
+                updatedFormData.totalOperatorHours = "";
+            }
+        }
+
+        setFormData(updatedFormData);
     };
 
     const handleSubmit = e => {
         e.preventDefault();
 
-        // Combine first name and last name
         const fullName = `${formData.firstName} ${formData.lastName}`;
-
-        // Generate email address
         const userEmail = `${formData.firstName
             .charAt(0)
             .toLowerCase()}${formData.lastName.toLowerCase()}@megagroup.nyc`;
 
-        // Prepare checklist data
-        const checklistDataString = checklistData.questions
-            .map((question, index) => {
-                const value = formData[question.key];
-                return `${index + 1}. ${question.label}\nAnswer: ${value.answer || "N/A"}${
-                    value.note ? `\nNote: ${value.note}` : ""
-                }`;
-            })
-            .join("\n\n");
-
-        // Check for required fields
         const requiredFields = ["projectName", "firstName", "lastName"];
         const missing = requiredFields.filter(field => !formData[field]);
 
-        // Check if all checklist questions have an answer
         const missingAnswers = checklistData.questions
-            .filter(question => !formData[question.key].answer)
+            .filter(question => !formData[question.key]?.answer)
             .map(question => question.label);
 
         if (missing.length > 0 || missingAnswers.length > 0) {
@@ -97,17 +96,37 @@ const Checklist = () => {
             return;
         }
 
+        if (formData.elevatorsOnSite.answer === "Yes" && (!formData.numberOfOperators || !formData.hoursPerOperator)) {
+            setErrorMessage("Please fill out the number of operators and hours per operator.");
+            return;
+        }
+
+        const checklistDataString = checklistData.questions
+            .map((question, index) => {
+                const value = formData[question.key];
+                let result = `${index + 1}. ${question.label}\nAnswer: ${value.answer || "N/A"}`;
+                if (question.key === "elevatorsOnSite" && value.answer === "Yes") {
+                    result += `\nNumber of Operators: ${formData.numberOfOperators || "N/A"}`;
+                    result += `\nHours per Operator: ${formData.hoursPerOperator || "N/A"}`;
+                    result += `\nTotal Operator Hours: ${formData.totalOperatorHours || "N/A"}`;
+                    if (value.note) result += `\nNote: ${value.note}`;
+                } else {
+                    if (value.note) result += `\nNote: ${value.note}`;
+                }
+                return result;
+            })
+            .join("\n\n");
+
         const emailContent = `
-    Project Name: ${formData.projectName}
-    Date: ${formData.date}
-    Full Name: ${fullName}
-    Email: ${userEmail}
+        Project Name: ${formData.projectName}
+        Date: ${formData.date}
+        Full Name: ${fullName}
+        Email: ${userEmail}
 
-    Building Inspection:
-    ${checklistDataString}
-    `;
+        Building Inspection:
+        ${checklistDataString}
+        `;
 
-        // Send email using EmailJS
         emailjs
             .send(
                 process.env.REACT_APP_EMAILJS_SERVICE_ID,
@@ -124,17 +143,15 @@ const Checklist = () => {
             )
             .then(
                 response => {
-                    console.log("SUCCESS!", response.status, response.text);
                     setSuccessMessage(
-                        `<div class="successmessage">Your checklist has been submitted successfully!</div>
-                <a href="/" class="success-link">Home Page</a>`
+                        `<div class=\"successmessage\">Your checklist has been submitted successfully!</div><a href=\"/\" class=\"success-link\">Home Page</a>`
                     );
-                    setShowForm(false); // Hide the form after successful submission
+                    setShowForm(false);
                 },
                 error => {
-                    console.log("FAILED...", error);
-                    setErrorMessage(`<div class="errormessage">There was an error submitting the form. Please try again.</div>
-                <a href="/" class="success-link">Home Page</a>`);
+                    setErrorMessage(
+                        `<div class=\"errormessage\">There was an error submitting the form. Please try again.</div><a href=\"/\" class=\"success-link\">Home Page</a>`
+                    );
                 }
             );
     };
@@ -208,63 +225,134 @@ const Checklist = () => {
                                 <legend>
                                     {index + 1}. {label} {requiredAsterisk}
                                 </legend>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        marginTop: "8px",
-                                    }}
-                                >
-                                    <label>
-                                        OK
-                                        <input
-                                            type='radio'
-                                            name={key}
-                                            value='OK'
-                                            checked={formData[key].answer === "OK"}
-                                            onChange={e => handleCheckboxChange(e, key)}
-                                        />
-                                    </label>
-                                    <label>
-                                        NG
-                                        <input
-                                            type='radio'
-                                            name={key}
-                                            value='NG'
-                                            checked={formData[key].answer === "NG"}
-                                            onChange={e => handleCheckboxChange(e, key)}
-                                        />
-                                    </label>
-                                    <label>
-                                        N/A
-                                        <input
-                                            type='radio'
-                                            name={key}
-                                            value='N/A'
-                                            checked={formData[key].answer === "N/A"}
-                                            onChange={e => handleCheckboxChange(e, key)}
-                                        />
-                                    </label>
+                                <div style={{ display: "flex", gap: "1rem", marginTop: "8px" }}>
+                                    {key === "elevatorsOnSite" ? (
+                                        <>
+                                            <label>
+                                                Yes
+                                                <input
+                                                    type='radio'
+                                                    name={key}
+                                                    value='Yes'
+                                                    checked={formData[key].answer === "Yes"}
+                                                    onChange={e => handleCheckboxChange(e, key)}
+                                                />
+                                            </label>
+                                            <label>
+                                                No
+                                                <input
+                                                    type='radio'
+                                                    name={key}
+                                                    value='No'
+                                                    checked={formData[key].answer === "No"}
+                                                    onChange={e => handleCheckboxChange(e, key)}
+                                                />
+                                            </label>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <label>
+                                                OK
+                                                <input
+                                                    type='radio'
+                                                    name={key}
+                                                    value='OK'
+                                                    checked={formData[key].answer === "OK"}
+                                                    onChange={e => handleCheckboxChange(e, key)}
+                                                />
+                                            </label>
+                                            <label>
+                                                NG
+                                                <input
+                                                    type='radio'
+                                                    name={key}
+                                                    value='NG'
+                                                    checked={formData[key].answer === "NG"}
+                                                    onChange={e => handleCheckboxChange(e, key)}
+                                                />
+                                            </label>
+                                            <label>
+                                                N/A
+                                                <input
+                                                    type='radio'
+                                                    name={key}
+                                                    value='N/A'
+                                                    checked={formData[key].answer === "N/A"}
+                                                    onChange={e => handleCheckboxChange(e, key)}
+                                                />
+                                            </label>
+                                        </>
+                                    )}
                                 </div>
-                                <label className='notes'>
-                                    Notes:
-                                    <textarea
-                                        placeholder='Enter notes here...'
-                                        name={`notes_${key}`}
-                                        value={formData[key].note}
-                                        onChange={e => handleNoteChange(e, key)}
-                                        style={{
-                                            width: "100%",
-                                            padding: "0.5rem",
-                                            marginTop: "0.5rem",
-                                            border: "1px solid #ccc",
-                                            borderRadius: "4px",
-                                            boxSizing: "border-box",
-                                            height: "54%",
-                                        }}
-                                    />
-                                </label>
+
+                                {key === "elevatorsOnSite" && formData[key].answer === "Yes" && (
+                                    <div style={{ marginTop: "1rem" }}>
+                                        <label>
+                                            Number of Operators:
+                                            <input
+                                                type='number'
+                                                name='numberOfOperators'
+                                                value={formData.numberOfOperators}
+                                                onChange={handleInputChange}
+                                                style={inputStyle("numberOfOperators")}
+                                            />
+                                        </label>
+                                        <label>
+                                            Number of Hours per Operator:
+                                            <input
+                                                type='number'
+                                                name='hoursPerOperator'
+                                                value={formData.hoursPerOperator}
+                                                onChange={handleInputChange}
+                                                style={inputStyle("hoursPerOperator")}
+                                            />
+                                        </label>
+                                        <label>
+                                            Total Operator Hours:
+                                            <input
+                                                type='text'
+                                                name='totalOperatorHours'
+                                                value={formData.totalOperatorHours}
+                                                readOnly
+                                                style={{
+                                                    ...inputStyle("totalOperatorHours"),
+                                                    backgroundColor: "#f2f2f2",
+                                                }}
+                                            />
+                                        </label>
+                                        <label className='notes'>
+                                            Notes:
+                                            <textarea
+                                                placeholder='Enter notes here...'
+                                                name='elevatorsOnSiteNote'
+                                                value={formData.elevatorsOnSite.note || ""}
+                                                onChange={e => handleNoteChange(e, "elevatorsOnSite")}
+                                                style={inputStyle("elevatorsOnSiteNote")}
+                                            />
+                                        </label>
+                                    </div>
+                                )}
+
+                                {key !== "elevatorsOnSite" && (
+                                    <label className='notes'>
+                                        Notes:
+                                        <textarea
+                                            placeholder='Enter notes here...'
+                                            name={`notes_${key}`}
+                                            value={formData[key].note}
+                                            onChange={e => handleNoteChange(e, key)}
+                                            style={{
+                                                width: "100%",
+                                                padding: "0.5rem",
+                                                marginTop: "0.5rem",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "4px",
+                                                boxSizing: "border-box",
+                                                height: "54%",
+                                            }}
+                                        />
+                                    </label>
+                                )}
                             </fieldset>
                         </div>
                     ))}
