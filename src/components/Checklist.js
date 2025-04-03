@@ -24,7 +24,7 @@ const Checklist = () => {
         fireAlarmSystem: { answer: "", note: "" },
         elevatorsOnSite: { answer: "", note: "" },
         numberOfOperators: "",
-        hoursPerOperator: "",
+        hoursPerOperatorList: [],
         totalOperatorHours: "",
     });
 
@@ -61,18 +61,31 @@ const Checklist = () => {
             [name]: formattedValue,
         };
 
-        if (name === "numberOfOperators" || name === "hoursPerOperator") {
-            const numOps = parseFloat(name === "numberOfOperators" ? value : formData.numberOfOperators);
-            const hrsOp = parseFloat(name === "hoursPerOperator" ? value : formData.hoursPerOperator);
-
-            if (!isNaN(numOps) && !isNaN(hrsOp)) {
-                updatedFormData.totalOperatorHours = (numOps * hrsOp).toLocaleString();
-            } else {
-                updatedFormData.totalOperatorHours = "";
-            }
-        }
-
         setFormData(updatedFormData);
+    };
+
+    const handleOperatorChange = e => {
+        const value = parseInt(e.target.value);
+        const hoursPerOperatorList = Array.from({ length: value }, () => "");
+        setFormData(prev => ({
+            ...prev,
+            numberOfOperators: value,
+            hoursPerOperatorList,
+            totalOperatorHours: "",
+        }));
+    };
+
+    const handleHourInput = (index, value) => {
+        const updatedHours = [...formData.hoursPerOperatorList];
+        updatedHours[index] = value;
+
+        const total = updatedHours.reduce((acc, val) => acc + (parseFloat(val) || 0), 0);
+
+        setFormData(prev => ({
+            ...prev,
+            hoursPerOperatorList: updatedHours,
+            totalOperatorHours: total ? total.toLocaleString() : "",
+        }));
     };
 
     const handleSubmit = e => {
@@ -96,8 +109,13 @@ const Checklist = () => {
             return;
         }
 
-        if (formData.elevatorsOnSite.answer === "Yes" && (!formData.numberOfOperators || !formData.hoursPerOperator)) {
-            setErrorMessage("Please fill out the number of operators and hours per operator.");
+        if (
+            formData.elevatorsOnSite.answer === "Yes" &&
+            (!formData.numberOfOperators ||
+                formData.hoursPerOperatorList.length !== parseInt(formData.numberOfOperators) ||
+                formData.hoursPerOperatorList.some(val => val === ""))
+        ) {
+            setErrorMessage("Please fill out the number of operators and all hours per operator.");
             return;
         }
 
@@ -107,7 +125,10 @@ const Checklist = () => {
                 let result = `${index + 1}. ${question.label}\nAnswer: ${value.answer || "N/A"}`;
                 if (question.key === "elevatorsOnSite" && value.answer === "Yes") {
                     result += `\nNumber of Operators: ${formData.numberOfOperators || "N/A"}`;
-                    result += `\nHours per Operator: ${formData.hoursPerOperator || "N/A"}`;
+                    result += `\nOperator Hours:`;
+                    formData.hoursPerOperatorList.forEach((hour, i) => {
+                        result += `\n  - Operator ${i + 1}: ${hour || 0} hrs`;
+                    });
                     result += `\nTotal Operator Hours: ${formData.totalOperatorHours || "N/A"}`;
                     if (value.note) result += `\nNote: ${value.note}`;
                 } else {
@@ -118,13 +139,13 @@ const Checklist = () => {
             .join("\n\n");
 
         const emailContent = `
-        Project Name: ${formData.projectName}
-        Date: ${formData.date}
-        Full Name: ${fullName}
-        Email: ${userEmail}
+            Project Name: ${formData.projectName}
+            Date: ${formData.date}
+            Full Name: ${fullName}
+            Email: ${userEmail}
 
-        Building Inspection:
-        ${checklistDataString}
+            Building Inspection:
+            ${checklistDataString}
         `;
 
         emailjs
@@ -144,7 +165,8 @@ const Checklist = () => {
             .then(
                 response => {
                     setSuccessMessage(
-                        `<div class=\"successmessage\">Your checklist has been submitted successfully!</div><a href=\"/\" class=\"success-link\">Home Page</a>`
+                        `<div class=\"successmessage\">Your checklist has been submitted successfully!</div>
+                        <div style="text-align:center; margin-top:10px;"><a href="/" class="success-link">Home Page</a></div>`
                     );
                     setShowForm(false);
                 },
@@ -289,24 +311,33 @@ const Checklist = () => {
                                     <div style={{ marginTop: "1rem" }}>
                                         <label>
                                             Number of Operators:
-                                            <input
-                                                type='number'
+                                            <select
                                                 name='numberOfOperators'
                                                 value={formData.numberOfOperators}
-                                                onChange={handleInputChange}
+                                                onChange={handleOperatorChange}
                                                 style={inputStyle("numberOfOperators")}
-                                            />
+                                            >
+                                                <option value=''>Select</option>
+                                                {Array.from({ length: 201 }, (_, i) => (
+                                                    <option key={i} value={i}>
+                                                        {i}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </label>
-                                        <label>
-                                            Number of Hours per Operator:
-                                            <input
-                                                type='number'
-                                                name='hoursPerOperator'
-                                                value={formData.hoursPerOperator}
-                                                onChange={handleInputChange}
-                                                style={inputStyle("hoursPerOperator")}
-                                            />
-                                        </label>
+
+                                        {formData.hoursPerOperatorList.map((val, i) => (
+                                            <label key={i}>
+                                                Hours for Operator {i + 1}:
+                                                <input
+                                                    type='number'
+                                                    value={val}
+                                                    onChange={e => handleHourInput(i, e.target.value)}
+                                                    style={inputStyle(`hours_${i}`)}
+                                                />
+                                            </label>
+                                        ))}
+
                                         <label>
                                             Total Operator Hours:
                                             <input
@@ -341,24 +372,19 @@ const Checklist = () => {
                                             name={`notes_${key}`}
                                             value={formData[key].note}
                                             onChange={e => handleNoteChange(e, key)}
-                                            style={{
-                                                width: "100%",
-                                                padding: "0.5rem",
-                                                marginTop: "0.5rem",
-                                                border: "1px solid #ccc",
-                                                borderRadius: "4px",
-                                                boxSizing: "border-box",
-                                                height: "54%",
-                                            }}
+                                            style={inputStyle(`notes_${key}`)}
                                         />
                                     </label>
                                 )}
                             </fieldset>
                         </div>
                     ))}
-                    <button type='submit' className='submit-button'>
-                        Submit Checklist
-                    </button>
+
+                    <div className='centered-button'>
+                        <button type='submit' className='submit-button'>
+                            Submit Checklist
+                        </button>
+                    </div>
                 </form>
             ) : (
                 <div>

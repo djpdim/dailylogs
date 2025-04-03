@@ -159,6 +159,11 @@ input[type="text"] {
 .success-message {
     margin-bottom: 20px;
 }
+.centered-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
 
 @media (max-width: 37.5rem) {
     /* 600px */
