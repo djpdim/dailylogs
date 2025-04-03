@@ -1,7 +1,7 @@
 /** @format */
 
 import emailjs from "emailjs-com";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import checklistData from "../data/checklistData.json";
 
 const Checklist = () => {
@@ -34,12 +34,40 @@ const Checklist = () => {
     const [showForm, setShowForm] = useState(true);
     const [missingFields, setMissingFields] = useState([]);
 
+    const questionRefs = useRef({});
+
+    useEffect(() => {
+        // Populate refs only once all DOM is rendered
+        checklistData.questions.forEach(({ key }) => {
+            const el = document.getElementById(`question-${key}`);
+            if (el) questionRefs.current[key] = el;
+        });
+    }, [showForm]);
+
+    useEffect(() => {
+        if (missingFields.length > 0) {
+            const firstMissing = checklistData.questions.find(q => missingFields.includes(q.label))?.key;
+            if (firstMissing && questionRefs.current[firstMissing]) {
+                questionRefs.current[firstMissing].scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
+    }, [missingFields]);
+
     const handleCheckboxChange = (e, questionKey) => {
         const { value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [questionKey]: { ...prevData[questionKey], answer: value },
-        }));
+        setFormData(prevData => {
+            const updated = {
+                ...prevData,
+                [questionKey]: { ...prevData[questionKey], answer: value },
+            };
+            if (missingFields.includes(checklistData.questions.find(q => q.key === questionKey)?.label)) {
+                const updatedMissing = missingFields.filter(
+                    label => label !== checklistData.questions.find(q => q.key === questionKey)?.label
+                );
+                setMissingFields(updatedMissing);
+            }
+            return updated;
+        });
     };
 
     const handleNoteChange = (e, questionKey) => {
@@ -104,8 +132,10 @@ const Checklist = () => {
             .map(question => question.label);
 
         if (missing.length > 0 || missingAnswers.length > 0) {
-            setMissingFields([...missingAnswers]);
-            setErrorMessage("Please fill out all required fields.");
+            setMissingFields(missingAnswers);
+            setErrorMessage(
+                `<div class=\"errormessage\">Please answer all required questions before submitting the checklist.</div>`
+            );
             return;
         }
 
@@ -166,7 +196,9 @@ const Checklist = () => {
                 response => {
                     setSuccessMessage(
                         `<div class=\"successmessage\">Your checklist has been submitted successfully!</div>
-                        <div style="text-align:center; margin-top:10px;"><a href="/" class="success-link">Home Page</a></div>`
+     <div style=\"text-align:center; margin-top:10px;\">
+         <a href=\"/\" class=\"success-link\">Home Page</a>
+     </div>`
                     );
                     setShowForm(false);
                 },
@@ -242,11 +274,23 @@ const Checklist = () => {
                     </div>
                     <h2 className='inspection'>Building Inspection:</h2>
                     {checklistData.questions.map(({ label, key }, index) => (
-                        <div className='question-box' key={index}>
-                            <fieldset>
-                                <legend>
+                        <div
+                            className='question-box'
+                            id={`question-${key}`}
+                            key={index}
+                            ref={el => (questionRefs.current[key] = el)}
+                        >
+                            <fieldset
+                                style={{
+                                    border: missingFields.includes(label) ? "2px solid red" : "1px solid #ccc",
+                                    padding: "1rem",
+                                    borderRadius: "4px",
+                                }}
+                            >
+                                <legend style={{ color: missingFields.includes(label) ? "red" : undefined }}>
                                     {index + 1}. {label} {requiredAsterisk}
                                 </legend>
+
                                 <div style={{ display: "flex", gap: "1rem", marginTop: "8px" }}>
                                     {key === "elevatorsOnSite" ? (
                                         <>
@@ -391,7 +435,7 @@ const Checklist = () => {
                     <div dangerouslySetInnerHTML={{ __html: successMessage }} />
                 </div>
             )}
-            {errorMessage && <div className='errormessage'>{errorMessage}</div>}
+            {errorMessage && <div dangerouslySetInnerHTML={{ __html: errorMessage }} />}
         </div>
     );
 };
